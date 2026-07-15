@@ -192,23 +192,38 @@ export default function ScrollScrubHero({ preloadedImages }: ScrollScrubHeroProp
       return;
     }
 
-    /* Fade the sticky container in as the section scrolls into view */
+    /* Fade + slide the sticky container in as the section scrolls into view */
     const stickyEl = wrapper.querySelector<HTMLElement>(".scrub-sticky");
     if (stickyEl) {
       gsap.fromTo(
         stickyEl,
-        { opacity: 0, y: 40 },
+        { opacity: 0, scale: 0.97 },
         {
           opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: "power2.out",
+          scale: 1,
+          duration: 1.2,
+          ease: "power3.out",
           scrollTrigger: {
             trigger: wrapper,
-            start: "top 85%",
-            end: "top 30%",
+            start: "top 90%",
+            end: "top 20%",
             scrub: 1,
           },
+        }
+      );
+    }
+
+    /* Ruler animates in once section hits top */
+    const rulerEl = wrapper.querySelector<HTMLElement>(".scrub-ruler");
+    if (rulerEl) {
+      gsap.fromTo(
+        rulerEl,
+        { opacity: 0, y: 16 },
+        {
+          opacity: 1, y: 0,
+          duration: 0.8,
+          ease: "power2.out",
+          scrollTrigger: { trigger: wrapper, start: "top 10%", toggleActions: "play none none reverse" },
         }
       );
     }
@@ -330,7 +345,8 @@ export default function ScrollScrubHero({ preloadedImages }: ScrollScrubHeroProp
                 maxWidth  : "580px",
                 zIndex    : 10,
                 opacity   : isActive ? 1 : 0,
-                transition: "opacity 0.55s ease, transform 0.55s ease",
+                clipPath  : isActive ? "inset(0% 0% 0% 0%)" : "inset(8% 0% 8% 0%)",
+                transition: "opacity 0.6s ease, clip-path 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1)",
                 pointerEvents: isActive ? "auto" : "none",
                 ...posStyle,
               }}
@@ -425,15 +441,18 @@ export default function ScrollScrubHero({ preloadedImages }: ScrollScrubHeroProp
         })}
 
         {/* ══════════════════════════════════════════════════
-            RULER — bottom progress bar (exact Ducati)
+            RULER — bottom progress bar
         ══════════════════════════════════════════════════ */}
-        <div style={{
+        <div
+          className="scrub-ruler"
+          style={{
           position : "absolute",
           bottom   : "2.2rem",
           left     : "50%",
           transform: "translateX(-50%)",
           width    : "min(70%, 480px)",
           zIndex   : 20,
+          opacity  : 0,
         }}>
           {/* Track */}
           <div style={{
