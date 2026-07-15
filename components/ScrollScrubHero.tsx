@@ -115,47 +115,70 @@ interface ScrollScrubHeroProps {
 
 export default function ScrollScrubHero({ preloadedImages }: ScrollScrubHeroProps) {
   const wrapperRef    = useRef<HTMLDivElement>(null);
-  const canvasRef     = useRef<HTMLCanvasElement>(null);
+  const canvasRef     = useRef<HTMLCanvasElement>(null);  // front — new frame
+  const backCanvasRef = useRef<HTMLCanvasElement>(null);  // back  — previous frame
   const imagesRef     = useRef<HTMLImageElement[]>(preloadedImages);
   const frameRef      = useRef(0);
+  const rafRef        = useRef<number>(0);
+  const fadeRafRef    = useRef<number>(0);
 
   const [activeSlide, setActiveSlide] = useState(0);
   const [progress,    setProgress]    = useState(0);
 
-  /* Keep imagesRef in sync if parent re-renders */
-  useEffect(() => {
-    imagesRef.current = preloadedImages;
-  }, [preloadedImages]);
+  useEffect(() => { imagesRef.current = preloadedImages; }, [preloadedImages]);
 
-  /* ── 2. Draw single frame to canvas with cover-fit ── */
-  const drawFrame = useCallback((index: number) => {
-    const canvas = canvasRef.current;
-    const img    = imagesRef.current[index];
-    if (!canvas || !img?.complete || img.naturalWidth === 0) return;
-
+  /* ── Cover-fit draw onto any canvas ── */
+  const drawTo = useCallback((canvas: HTMLCanvasElement, img: HTMLImageElement) => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const cw  = canvas.clientWidth;
-    const ch  = canvas.clientHeight;
-
+    const cw = canvas.clientWidth, ch = canvas.clientHeight;
     if (canvas.width !== cw * dpr || canvas.height !== ch * dpr) {
-      canvas.width  = cw * dpr;
-      canvas.height = ch * dpr;
+      canvas.width = cw * dpr; canvas.height = ch * dpr;
     }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    /* Cover-fit math */
     const ir = img.naturalWidth / img.naturalHeight;
     const cr = cw / ch;
     let dw: number, dh: number, dx: number, dy: number;
     if (ir > cr) { dh = ch; dw = ch * ir; dx = (cw - dw) / 2; dy = 0; }
     else          { dw = cw; dh = cw / ir; dx = 0; dy = (ch - dh) / 2; }
-
     ctx.clearRect(0, 0, cw, ch);
     ctx.drawImage(img, dx, dy, dw, dh);
   }, []);
+
+  /* ── Draw frame with crossfade ── */
+  const drawFrame = useCallback((index: number) => {
+    const front = canvasRef.current;
+    const back  = backCanvasRef.current;
+    const img   = imagesRef.current[index];
+    if (!front || !back || !img?.complete || img.naturalWidth === 0) return;
+
+    /* 1. Blit current front onto back (becomes the "from" frame) */
+    const backCtx = back.getContext("2d");
+    if (!backCtx) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const cw = front.clientWidth, ch = front.clientHeight;
+    if (back.width !== cw * dpr || back.height !== ch * dpr) {
+      back.width = cw * dpr; back.height = ch * dpr;
+    }
+    backCtx.setTransform(1, 0, 0, 1, 0, 0);
+    backCtx.clearRect(0, 0, back.width, back.height);
+    backCtx.drawImage(front, 0, 0);
+
+    /* 2. Draw new frame onto front at opacity 0, then fade to 1 */
+    drawTo(front, img);
+    front.style.opacity = "0";
+
+    cancelAnimationFrame(fadeRafRef.current);
+    const FADE_MS = 120;
+    const start = performance.now();
+    const fade = (now: number) => {
+      const t = Math.min(1, (now - start) / FADE_MS);
+      front.style.opacity = String(t);
+      if (t < 1) fadeRafRef.current = requestAnimationFrame(fade);
+    };
+    fadeRafRef.current = requestAnimationFrame(fade);
+  }, [drawTo]);
 
   /* ── 3. Wire scroll → frame + active slide ── */
   useEffect(() => {
@@ -169,35 +192,59 @@ export default function ScrollScrubHero({ preloadedImages }: ScrollScrubHeroProp
       return;
     }
 
+    /* Fade the sticky container in as the section scrolls into view */
+    const stickyEl = wrapper.querySelector<HTMLElement>(".scrub-sticky");
+    if (stickyEl) {
+      gsap.fromTo(
+        stickyEl,
+        { opacity: 0, y: 40 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: wrapper,
+            start: "top 85%",
+            end: "top 30%",
+            scrub: 1,
+          },
+        }
+      );
+    }
+
     const st = ScrollTrigger.create({
       trigger : wrapper,
       start   : "top top",
       end     : "bottom bottom",
-      scrub   : 0.18,                // silky smooth
+      scrub   : 1,
       onUpdate: (self) => {
         const p   = self.progress;
-        setProgress(p);
 
-        /* Map progress → frame index */
+        /* Map progress → frame index and draw immediately — no rAF queue */
         const idx = Math.min(FRAME_COUNT - 1, Math.round(p * (FRAME_COUNT - 1)));
         if (idx !== frameRef.current) {
           frameRef.current = idx;
-          requestAnimationFrame(() => drawFrame(idx));
+          drawFrame(idx);
         }
 
-        /* Which slide is active? */
-        const fNum = idx + 1;
-        let slide  = 0;
-        for (let i = SLIDES.length - 1; i >= 0; i--) {
-          if (fNum >= SLIDES[i].frameStart) { slide = i; break; }
-        }
-        setActiveSlide(slide);
+        /* Throttle React state updates so they never block the draw path */
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = requestAnimationFrame(() => {
+          setProgress(p);
+          const fNum = idx + 1;
+          let slide  = 0;
+          for (let i = SLIDES.length - 1; i >= 0; i--) {
+            if (fNum >= SLIDES[i].frameStart) { slide = i; break; }
+          }
+          setActiveSlide(slide);
+        });
       },
     });
 
     const onResize = () => drawFrame(frameRef.current);
     window.addEventListener("resize", onResize, { passive: true });
-    return () => { st.kill(); window.removeEventListener("resize", onResize); };
+    return () => { st.kill(); window.removeEventListener("resize", onResize); cancelAnimationFrame(rafRef.current); cancelAnimationFrame(fadeRafRef.current); };
   }, [drawFrame]);
 
   return (
@@ -212,6 +259,7 @@ export default function ScrollScrubHero({ preloadedImages }: ScrollScrubHeroProp
     >
       {/* ── STICKY viewport container ── */}
       <div
+        className="scrub-sticky"
         style={{
           position : "sticky",
           top      : 0,
@@ -219,16 +267,29 @@ export default function ScrollScrubHero({ preloadedImages }: ScrollScrubHeroProp
           height   : "100vh",
           overflow : "hidden",
           background: "#000",
+          opacity  : 0,
         }}
       >
+        {/* Back canvas — holds previous frame, always fully visible */}
+        <canvas
+          ref={backCanvasRef}
+          style={{
+            position: "absolute",
+            inset    : 0,
+            width    : "100%",
+            height   : "100%",
+            display  : "block",
+          }}
+        />
+        {/* Front canvas — new frame, fades in over previous */}
         <canvas
           ref={canvasRef}
           style={{
-            position  : "absolute",
-            inset     : 0,
-            width     : "100%",
-            height    : "100%",
-            display   : "block",
+            position: "absolute",
+            inset    : 0,
+            width    : "100%",
+            height   : "100%",
+            display  : "block",
           }}
         />
 
