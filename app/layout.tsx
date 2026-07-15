@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Cursor from "@/components/Cursor";
+import dynamic from "next/dynamic";
+
+const Cursor = dynamic(() => import("@/components/Cursor"), { ssr: false });
 
 export const metadata: Metadata = {
   title: "Mustang | Uncompromising",
