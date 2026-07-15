@@ -7,7 +7,13 @@
 html { scroll-behavior: smooth; }
 
 /* ─── Custom cursor ──────────────────────────── */
-* { cursor: none !important; }
+@media (hover: hover) and (pointer: fine) {
+  * { cursor: none !important; }
+  .cursor { display: block; }
+}
+@media (hover: none), (pointer: coarse) {
+  .cursor { display: none !important; }
+}
 
 .cursor {
   position: fixed;
@@ -22,16 +28,6 @@ html { scroll-behavior: smooth; }
   transform: translate(-50%, -50%);
   transition: transform 0.15s ease, opacity 0.15s ease;
 }
-.cursor__ring {
-  width: 36px; height: 36px;
-  border: 1px solid rgba(255,255,255,0.5);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease;
-  position: absolute;
-  top: 0; left: 0;
-}
-
 /* ─── Grain overlay ──────────────────────────── */
 body::after {
   content: '';
@@ -616,25 +612,61 @@ main {
 ::-webkit-scrollbar-track { background: #000; }
 ::-webkit-scrollbar-thumb { background: #E60000; border-radius: 0; }
 
-/* ─── Mobile overrides ──────────────────────── */
+/* ─── Responsive ─────────────────────────── */
+@media (max-width: 1024px) {
+  .header { padding: 0 20px; }
+}
+
 @media (max-width: 768px) {
-  /* Hide custom cursor on touch */
-  .cursor { display: none; }
-  * { cursor: auto !important; }
-
+  /* Nav */
   .header { padding: 0 16px; height: 56px; }
+  .header__logo-text { font-size: 0.85rem; }
 
-  .scrub-slide { padding: 1rem 1.25rem !important; max-width: 100% !important; }
-  .scrub-slide__title { font-size: clamp(1.1rem, 5vw, 1.6rem) !important; }
-  .scrub-slide__desc  { font-size: 0.8rem !important; max-width: 100% !important; }
-  .scrub-badge__value { font-size: clamp(1.4rem, 6vw, 2rem) !important; }
+  /* Hero wordmark */
+  .hero-wordmark { font-size: clamp(2.5rem, 18vw, 5rem) !important; }
 
-  .scrub-slide--pos-default      { bottom: 80px !important; }
-  .scrub-slide--pos-center-right { top: auto !important; bottom: 80px !important; right: 4% !important; text-align: left !important; transform: translateY(14px) !important; }
-  .scrub-slide--pos-center-right.is-active { transform: translateY(0) !important; }
-  .scrub-slide--pos-bottom-left  { bottom: 80px !important; left: 4% !important; }
-  .scrub-slide--pos-bottom-right { bottom: 80px !important; right: 4% !important; }
-  .scrub-slide--pos-bottom-center { bottom: 80px !important; }
+  /* Scrub slides — all pinned to bottom, full width */
+  .scrub-slide {
+    padding: 0.85rem 1rem !important;
+    max-width: 92vw !important;
+    left: 4% !important;
+    right: 4% !important;
+    bottom: 72px !important;
+    top: auto !important;
+    text-align: left !important;
+    transform: translateY(14px) !important;
+  }
+  .scrub-slide.is-active {
+    transform: translateY(0) !important;
+  }
+  /* Override all position variants to same spot */
+  .scrub-slide--pos-default,
+  .scrub-slide--pos-center-right,
+  .scrub-slide--pos-bottom-left,
+  .scrub-slide--pos-bottom-right,
+  .scrub-slide--pos-bottom-center {
+    left: 4% !important;
+    right: 4% !important;
+    bottom: 72px !important;
+    top: auto !important;
+    text-align: left !important;
+    margin: 0 !important;
+    transform: translateY(14px) !important;
+  }
+  .scrub-slide--pos-default.is-active,
+  .scrub-slide--pos-center-right.is-active,
+  .scrub-slide--pos-bottom-left.is-active,
+  .scrub-slide--pos-bottom-right.is-active,
+  .scrub-slide--pos-bottom-center.is-active {
+    transform: translateY(0) !important;
+  }
 
-  .scrub-ruler { width: 85% !important; bottom: 1.2rem !important; }
+  .scrub-slide__title  { font-size: clamp(1rem, 5.5vw, 1.5rem) !important; margin-bottom: 0.6rem !important; }
+  .scrub-slide__desc   { font-size: 0.78rem !important; line-height: 1.55 !important; max-width: 100% !important; }
+  .scrub-slide__badges { gap: 0.5rem 1.2rem !important; }
+  .scrub-badge__value  { font-size: clamp(1.2rem, 7vw, 1.8rem) !important; }
+  .scrub-badge__spec   { font-size: 0.65rem !important; }
+
+  /* Ruler */
+  .scrub-ruler { width: 88% !important; bottom: 1rem !important; }
 }

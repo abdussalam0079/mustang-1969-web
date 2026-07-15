@@ -158,9 +158,9 @@ export default function Loader({ pct, ready, onEnter }: LoaderProps) {
               </p>
               <p style={{
                 fontFamily: "'Orbitron', sans-serif",
-                fontSize: "clamp(0.75rem, 1.1vw, 0.9375rem)",
+                fontSize: "clamp(0.65rem, 3vw, 0.9375rem)",
                 fontWeight: 600,
-                letterSpacing: "0.18em",
+                letterSpacing: "0.12em",
                 textTransform: "uppercase",
                 color: "rgba(245,245,245,0.9)",
                 animation: "loaderSlideDown 0.8s cubic-bezier(0.22,1,0.36,1) 0.4s both",
