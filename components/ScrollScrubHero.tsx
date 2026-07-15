@@ -192,22 +192,20 @@ export default function ScrollScrubHero({ preloadedImages }: ScrollScrubHeroProp
       return;
     }
 
-    /* Fade + slide the sticky container in as the section scrolls into view */
+    /* Fade the sticky container in as the section scrolls into view */
     const stickyEl = wrapper.querySelector<HTMLElement>(".scrub-sticky");
     if (stickyEl) {
       gsap.fromTo(
         stickyEl,
-        { opacity: 0, scale: 0.97 },
+        { opacity: 0 },
         {
           opacity: 1,
-          scale: 1,
-          duration: 1.2,
-          ease: "power3.out",
+          duration: 0.6,
+          ease: "power2.out",
           scrollTrigger: {
             trigger: wrapper,
-            start: "top 90%",
-            end: "top 20%",
-            scrub: 1,
+            start: "top 80%",
+            toggleActions: "play none none reverse",
           },
         }
       );
@@ -232,7 +230,7 @@ export default function ScrollScrubHero({ preloadedImages }: ScrollScrubHeroProp
       trigger : wrapper,
       start   : "top top",
       end     : "bottom bottom",
-      scrub   : 1,
+      scrub   : 0.3,
       onUpdate: (self) => {
         const p   = self.progress;
 

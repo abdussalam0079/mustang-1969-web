@@ -16,7 +16,6 @@ export default function HeroReveal({ entered }: HeroRevealProps) {
   const baseImgRef  = useRef<HTMLImageElement | null>(null);
   const rafRef      = useRef<number>(0);
   const imgWrapRef  = useRef<HTMLDivElement>(null);
-  const lineRef     = useRef<HTMLDivElement>(null);
   const wordmarkRef = useRef<HTMLDivElement>(null);
   const subtitleRef = useRef<HTMLDivElement>(null);
   const scrollRef   = useRef<HTMLDivElement>(null);
@@ -89,7 +88,6 @@ export default function HeroReveal({ entered }: HeroRevealProps) {
     if (!entered) return;
 
     const imgWrap  = imgWrapRef.current;
-    const line     = lineRef.current;
     const wordmark = wordmarkRef.current;
     const subtitle = subtitleRef.current;
     const scroll   = scrollRef.current;
@@ -101,16 +99,7 @@ export default function HeroReveal({ entered }: HeroRevealProps) {
       imgWrap.style.transform  = "scale(1)";
     }
 
-    /* 2. Horizontal line wipe at 400ms */
-    const t1 = setTimeout(() => {
-      if (line) {
-        line.style.transition = "width 0.7s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease";
-        line.style.width      = "100%";
-        line.style.opacity    = "1";
-      }
-    }, 400);
-
-    /* 3. Wordmark letters drop in at 600ms — driven by CSS animation class */
+    /* 2. Wordmark letters drop in at 400ms */
     const t2 = setTimeout(() => {
       if (wordmark) wordmark.classList.add("hero-animate");
     }, 600);
@@ -122,17 +111,17 @@ export default function HeroReveal({ entered }: HeroRevealProps) {
         subtitle.style.opacity    = "1";
         subtitle.style.transform  = "translateY(0)";
       }
-    }, 1100);
+    }, 900);
 
-    /* 5. Scroll indicator at 1500ms */
+    /* 5. Scroll indicator at 1300ms */
     const t4 = setTimeout(() => {
       if (scroll) {
         scroll.style.transition = "opacity 0.6s ease";
         scroll.style.opacity    = "1";
       }
-    }, 1500);
+    }, 1300);
 
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
+    return () => { clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
   }, [entered]);
 
   const onPointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
@@ -188,21 +177,7 @@ export default function HeroReveal({ entered }: HeroRevealProps) {
       {/* Gradient overlays */}
       <div className="hero-reveal__overlay" style={{ position: "absolute", inset: 0, pointerEvents: "none" }} />
 
-      {/* Horizontal wipe line — cinematic reveal bar */}
-      <div
-        ref={lineRef}
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: 0,
-          height: "1px",
-          width: "0%",
-          opacity: 0,
-          background: "linear-gradient(to right, transparent, rgba(230,0,0,0.8), transparent)",
-          zIndex: 6,
-          pointerEvents: "none",
-        }}
-      />
+
 
       {/* Wordmark */}
       <div
