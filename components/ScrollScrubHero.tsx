@@ -207,76 +207,7 @@ export default function ScrollScrubHero({ preloadedImages }: Props) {
           <div style={{ width: "1px", height: "38px", background: "linear-gradient(to bottom, rgba(255,255,255,0.8), transparent)", animation: "scrollPulse 1.8s ease-in-out infinite" }} />
         </div>
 
-        <style>{`
-          .scrub-sticky { height: 100svh !important; }
 
-          .scrub-slide {
-            position: absolute;
-            padding: 1.5rem 2.5rem;
-            max-width: 580px;
-            z-index: 10;
-            opacity: 0;
-            transform: translateY(14px);
-            transition: opacity 0.55s ease, transform 0.55s ease, clip-path 0.55s ease;
-            clip-path: inset(8% 0% 8% 0%);
-            pointer-events: none;
-          }
-          .scrub-slide.is-active {
-            opacity: 1;
-            transform: translateY(0);
-            clip-path: inset(0% 0% 0% 0%);
-            pointer-events: auto;
-          }
-          .scrub-slide--pos-default      { bottom: 140px; left: 0; right: 0; margin: 0 auto; text-align: center; max-width: 820px; }
-          .scrub-slide--pos-center-right { top: 50%; right: 4%; text-align: right; transform: translateY(calc(-50% + 14px)); }
-          .scrub-slide--pos-center-right.is-active { transform: translateY(-50%); }
-          .scrub-slide--pos-bottom-left  { bottom: 110px; left: 4%; }
-          .scrub-slide--pos-bottom-right { bottom: 110px; right: 4%; text-align: right; }
-          .scrub-slide--pos-bottom-center { bottom: 110px; left: 50%; text-align: center; transform: translateX(-50%) translateY(14px); }
-          .scrub-slide--pos-bottom-center.is-active { transform: translateX(-50%) translateY(0); }
-
-          .scrub-slide__title  { font-family: 'Orbitron', sans-serif; font-size: clamp(1.75rem, 4vw, 3.5rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1.05; color: #F5F5F5; margin-bottom: 1rem; white-space: pre-line; }
-          .scrub-slide__badges { display: flex; flex-wrap: wrap; gap: 0.8rem 2.5rem; justify-content: center; margin-bottom: 1.2rem; }
-          .scrub-badge__value  { font-family: 'Orbitron', sans-serif; font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1; color: #E60000; display: block; }
-          .scrub-badge__spec   { font-family: 'Inter', sans-serif; font-size: 0.8125rem; letter-spacing: 0.04em; text-transform: uppercase; color: #858585; line-height: 1.5; white-space: pre-line; margin: 0.3rem 0 0; }
-          .scrub-slide__road   { font-family: 'Inter', sans-serif; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.4); border-top: 1px solid rgba(255,255,255,0.12); padding-top: 0.75rem; }
-          .scrub-slide__desc   { font-family: 'Manrope','Inter',sans-serif; font-size: clamp(0.8rem, 1.2vw, 0.95rem); font-weight: 400; line-height: 1.75; color: rgba(255,255,255,0.72); max-width: 42ch; }
-
-          .scrub-ruler { position: absolute; bottom: 2.2rem; left: 50%; transform: translateX(-50%); width: min(70%, 480px); z-index: 20; }
-
-          @media (max-width: 768px) {
-            .scrub-slide {
-              padding: 0.85rem 1rem;
-              left: 4% !important;
-              right: 4% !important;
-              bottom: 68px !important;
-              top: auto !important;
-              max-width: 92vw !important;
-              text-align: left !important;
-              margin: 0 !important;
-              transform: translateY(14px) !important;
-            }
-            .scrub-slide.is-active {
-              transform: translateY(0) !important;
-            }
-            .scrub-slide--pos-center-right { transform: translateY(14px) !important; }
-            .scrub-slide--pos-center-right.is-active { transform: translateY(0) !important; }
-            .scrub-slide--pos-bottom-center { transform: translateY(14px) !important; }
-            .scrub-slide--pos-bottom-center.is-active { transform: translateY(0) !important; }
-
-            .scrub-slide__title  { font-size: clamp(1rem, 5vw, 1.4rem) !important; margin-bottom: 0.5rem !important; }
-            .scrub-slide__desc   { font-size: 0.78rem !important; line-height: 1.5 !important; max-width: 100% !important; }
-            .scrub-slide__badges { gap: 0.4rem 1rem !important; }
-            .scrub-badge__value  { font-size: clamp(1.2rem, 6vw, 1.6rem) !important; }
-            .scrub-badge__spec   { font-size: 0.6rem !important; }
-            .scrub-ruler { width: 86% !important; bottom: 0.8rem !important; }
-          }
-
-          @keyframes scrollPulse {
-            0%, 100% { opacity: 0.3; transform: scaleY(0.6); }
-            50%       { opacity: 1;   transform: scaleY(1); }
-          }
-        `}</style>
       </div>
     </div>
   );
