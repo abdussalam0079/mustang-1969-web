@@ -301,6 +301,10 @@ export default function Loader({ pct, ready, onEnter }: LoaderProps) {
           from { opacity: 0; }
           to   { opacity: 1; }
         }
+        @media (max-width: 768px) {
+          .loader-title { font-size: 0.7rem !important; }
+          .loader-subtitle { font-size: 0.8rem !important; }
+        }
       `}</style>
     </div>
   );

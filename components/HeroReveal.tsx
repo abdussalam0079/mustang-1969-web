@@ -142,14 +142,14 @@ export default function HeroReveal({ entered }: HeroRevealProps) {
       style={{
         position: "relative",
         width: "100%",
-        height: "100vh",
+        height: "100svh",
         overflow: "hidden",
         background: "#000",
         display: "flex",
         alignItems: "flex-end",
         justifyContent: "center",
         cursor: "none",
-        touchAction: "none",
+        touchAction: "pan-y",
       }}
     >
       {/* Image wrapper — starts scaled up + invisible */}
@@ -183,17 +183,18 @@ export default function HeroReveal({ entered }: HeroRevealProps) {
       <div
         style={{
           position: "relative",
-          marginBottom: "88px",
+          marginBottom: "clamp(60px, 12vw, 88px)",
           textAlign: "center",
           zIndex: 5,
           pointerEvents: "none",
+          padding: "0 1rem",
         }}
       >
         <div
           ref={wordmarkRef}
           style={{
             fontFamily: "'Orbitron', sans-serif",
-            fontSize: "clamp(3.875rem, 12vw, 13rem)",
+            fontSize: "clamp(2.8rem, 15vw, 13rem)",
             fontWeight: 700,
             letterSpacing: "-0.02em",
             lineHeight: 0.9,

@@ -55,17 +55,7 @@ export default function Home() {
         <Nav />
         <HeroReveal entered={entered} />
 
-        {/* ── Black curtain seam between hero and scroll section ── */}
-        <div style={{
-          position: "relative",
-          height: "18vh",
-          background: "linear-gradient(to bottom, #000 0%, transparent 100%)",
-          marginBottom: "-18vh",
-          zIndex: 2,
-          pointerEvents: "none",
-        }} />
-
-        {/* Pass preloaded images so ScrollScrubHero doesn't re-fetch */}
+{/* Pass preloaded images so ScrollScrubHero doesn't re-fetch */}
         <ScrollScrubHero preloadedImages={imagesRef.current} />
 
       </main>
